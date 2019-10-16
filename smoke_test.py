@@ -1,11 +1,21 @@
 # This script can be used to test that you have SQS access
 
 # CHANGE THESE VARIABLES
-QUEUE_URL = 'SQS_QUEUE_URL'
+# Or set them in credentials.py
+QUEUE_URL = ''
+AWS_ACCESS_KEY = ''
+AWS_SECRET_KEY = ''
+
+try:
+    from credentials import *
+except ImportError:
+    pass
 
 import boto3
 
-sqs = boto3.client('sqs')
+sqs = boto3.client('sqs',
+        aws_access_key_id=AWS_ACCESS_KEY,
+        aws_secret_access_key=AWS_SECRET_KEY)
 
 msg_a = {
         'title': {
@@ -16,7 +26,7 @@ msg_a = {
 msg_b = 'This is where additional info about the meeting could end up'
 
 resp = sqs.send_message(
-        QueueUrl=queue_url,
+        QueueUrl=QUEUE_URL,
         DelaySeconds=10,
         MessageAttributes=msg_a,
         MessageBody=msg_b)
@@ -25,7 +35,7 @@ print(resp)
 print(resp['MessageId'])
 
 resp = sqs.receive_message(
-        QueueUrl=queue_url,
+        QueueUrl=QUEUE_URL,
         AttributeNames=[
             'SentTimestamp'
         ],
@@ -36,11 +46,11 @@ resp = sqs.receive_message(
         VisibilityTimeout=0,
         WaitTimeSeconds=0)
 
-message = response['Messages'][0]
+message = resp['Messages'][0]
 receipt_handle = message['ReceiptHandle']
 
 sqs.delete_message(
-        QueueUrl=queue_url,
+        QueueUrl=QUEUE_URL,
         ReceiptHandle=receipt_handle)
 
 print('Rec and deleted msg {}'.format(message))
