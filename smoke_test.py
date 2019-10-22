@@ -15,7 +15,8 @@ import boto3
 
 sqs = boto3.client('sqs',
         aws_access_key_id=AWS_ACCESS_KEY,
-        aws_secret_access_key=AWS_SECRET_KEY)
+        aws_secret_access_key=AWS_SECRET_KEY,
+        aws_session_token=AWS_SESSION_TOKEN)
 
 msg_a = {
         'title': {
@@ -46,13 +47,18 @@ resp = sqs.receive_message(
         VisibilityTimeout=0,
         WaitTimeSeconds=0)
 
-message = resp['Messages'][0]
-receipt_handle = message['ReceiptHandle']
+# message = resp['Messages'][0]
+
+try:
+    message = resp['Messages']
+except KeyError:
+    print('No message on the queue!')
+    message = []
+
+receipt_handle = message[0]['ReceiptHandle']
 
 sqs.delete_message(
         QueueUrl=QUEUE_URL,
         ReceiptHandle=receipt_handle)
 
 print('Rec and deleted msg {}'.format(message))
-
-
