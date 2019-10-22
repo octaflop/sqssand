@@ -1,3 +1,6 @@
+import os
+
+import boto3
 # This script can be used to test that you have SQS access
 
 # CHANGE THESE VARIABLES
@@ -7,11 +10,9 @@ AWS_ACCESS_KEY = ''
 AWS_SECRET_KEY = ''
 
 try:
-    from credentials import *
+    from credentials import *  # noqa
 except ImportError:
     pass
-
-import boto3
 
 sqs = boto3.client('sqs',
         aws_access_key_id=AWS_ACCESS_KEY,
